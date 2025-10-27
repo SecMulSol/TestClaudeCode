@@ -171,66 +171,118 @@ document.addEventListener('DOMContentLoaded', function() {
             const submitBtn = contactForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
 
+            // Validation côté client
+            const nom = contactForm.querySelector('input[name="nom"]').value.trim();
+            const email = contactForm.querySelector('input[name="email"]').value.trim();
+            const telephone = contactForm.querySelector('input[name="telephone"]').value.trim();
+            const type_projet = contactForm.querySelector('select[name="type_projet"]').value;
+            const message = contactForm.querySelector('textarea[name="message"]').value.trim();
+
+            // Vérifications basiques
+            if (!nom || nom.length < 2) {
+                showFormMessage('Veuillez entrer un nom valide (minimum 2 caractères)', false);
+                return;
+            }
+
+            if (!email || !isValidEmail(email)) {
+                showFormMessage('Veuillez entrer un email valide', false);
+                return;
+            }
+
+            if (!telephone || telephone.length < 10) {
+                showFormMessage('Veuillez entrer un numéro de téléphone valide', false);
+                return;
+            }
+
+            if (!type_projet) {
+                showFormMessage('Veuillez sélectionner un type de projet', false);
+                return;
+            }
+
+            if (!message || message.length < 10) {
+                showFormMessage('Veuillez entrer un message (minimum 10 caractères)', false);
+                return;
+            }
+
             // Show loading state
             submitBtn.classList.add('btn-loading');
             submitBtn.textContent = 'Envoi en cours...';
             submitBtn.disabled = true;
 
-            // Simulate form submission (replace with actual API call)
-            setTimeout(() => {
+            // Préparer les données du formulaire
+            const formData = new FormData(contactForm);
+
+            // Envoyer au serveur PHP
+            fetch('contact.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
                 // Reset button
                 submitBtn.classList.remove('btn-loading');
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
 
-                // Show success message
-                formMessage.classList.remove('hidden', 'form-error');
-                formMessage.classList.add('form-success');
-                formMessage.textContent = 'Merci ! Votre demande a été envoyée avec succès. Nous vous recontacterons dans les plus brefs délais.';
+                if (data.success) {
+                    // Show success message
+                    showFormMessage(data.message, true);
 
-                // Reset form
-                contactForm.reset();
-
-                // Hide message after 5 seconds
-                setTimeout(() => {
-                    formMessage.classList.add('hidden');
-                }, 5000);
-
-                // In production, you would send the form data to your server:
-                /*
-                const formData = new FormData(contactForm);
-
-                fetch('/api/contact', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Handle success
-                    submitBtn.classList.remove('btn-loading');
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-
-                    formMessage.classList.remove('hidden', 'form-error');
-                    formMessage.classList.add('form-success');
-                    formMessage.textContent = 'Merci ! Votre demande a été envoyée avec succès.';
-
+                    // Reset form
                     contactForm.reset();
-                })
-                .catch(error => {
-                    // Handle error
-                    submitBtn.classList.remove('btn-loading');
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
 
-                    formMessage.classList.remove('hidden', 'form-success');
-                    formMessage.classList.add('form-error');
-                    formMessage.textContent = 'Une erreur est survenue. Veuillez réessayer.';
-                });
-                */
+                    // Scroll to message
+                    formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    // Show error message from server
+                    showFormMessage(data.message || 'Une erreur est survenue lors de l\'envoi.', false);
+                }
+            })
+            .catch(error => {
+                // Handle error
+                console.error('Erreur lors de l\'envoi:', error);
 
-            }, 2000);
+                submitBtn.classList.remove('btn-loading');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+
+                showFormMessage(
+                    'Une erreur est survenue lors de l\'envoi. Veuillez vérifier votre connexion et réessayer.',
+                    false
+                );
+            });
         });
+    }
+
+    // Fonction pour afficher les messages du formulaire
+    function showFormMessage(message, isSuccess) {
+        formMessage.classList.remove('hidden');
+
+        if (isSuccess) {
+            formMessage.classList.remove('form-error');
+            formMessage.classList.add('form-success');
+        } else {
+            formMessage.classList.remove('form-success');
+            formMessage.classList.add('form-error');
+        }
+
+        formMessage.textContent = message;
+
+        // Hide message after 8 seconds
+        setTimeout(() => {
+            formMessage.classList.add('hidden');
+        }, 8000);
+    }
+
+    // Fonction de validation d'email
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
     }
 
     // ======================

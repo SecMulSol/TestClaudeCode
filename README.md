@@ -16,6 +16,7 @@ Cette landing page présente des solutions de surveillance mobile pour différen
 - **TailwindCSS** - Framework CSS pour le design responsive
 - **CSS3** - Styles personnalisés et animations
 - **JavaScript (Vanilla)** - Interactions et animations dynamiques
+- **PHP 8.2+** - Traitement du formulaire de contact et envoi d'emails
 
 ## Fonctionnalités
 
@@ -59,30 +60,54 @@ Cette landing page présente des solutions de surveillance mobile pour différen
 ├── index.html      # Page HTML principale
 ├── styles.css      # Styles CSS personnalisés
 ├── script.js       # Scripts JavaScript
+├── contact.php     # Script PHP pour traiter le formulaire
+├── config.php      # Configuration PHP (emails, sécurité)
+├── .htaccess       # Configuration Apache (sécurité, performance)
+├── logs/           # Dossier pour les logs (à créer)
 └── README.md       # Documentation
 ```
 
 ## Installation et Utilisation
 
-### Ouvrir localement
+### Déploiement sur Hostinger (Production)
 
-1. Clonez le repository ou téléchargez les fichiers
-2. Ouvrez `index.html` dans votre navigateur
+1. **Uploadez tous les fichiers** via FTP ou le gestionnaire de fichiers Hostinger :
+   ```
+   index.html
+   styles.css
+   script.js
+   contact.php
+   config.php
+   .htaccess
+   ```
 
-### Via un serveur local
+2. **Configurez `config.php`** :
+   - Ouvrez `config.php` dans l'éditeur
+   - Modifiez `CONTACT_EMAIL` avec votre vraie adresse email
+   - Modifiez `SMTP_FROM_EMAIL` avec une adresse email de votre domaine
+   - Modifiez `ALLOWED_ORIGINS` avec votre nom de domaine
+   - Changez `DEBUG_MODE` à `false` pour la production
+
+3. **Créez le dossier logs** :
+   ```bash
+   mkdir logs
+   chmod 755 logs
+   ```
+
+4. **Créez l'adresse email d'envoi** dans le panneau Hostinger
+
+5. **Testez le formulaire** et vérifiez la réception des emails
+
+### Test en local (Développement)
 
 ```bash
-# Avec Python 3
-python -m http.server 8000
-
-# Avec Node.js (http-server)
-npx http-server
-
-# Avec PHP
+# Avec PHP (nécessaire pour tester le formulaire)
 php -S localhost:8000
+
+# Puis ouvrez http://localhost:8000 dans votre navigateur
 ```
 
-Puis ouvrez `http://localhost:8000` dans votre navigateur.
+**Note** : Pour tester l'envoi d'emails en local, vous devrez configurer un serveur SMTP ou utiliser un service comme Mailhog.
 
 ## Personnalisation
 
@@ -107,23 +132,49 @@ tailwind.config = {
 - Ajustez les textes, images et liens selon vos besoins
 
 ### Formulaire de contact
-Le formulaire est actuellement configuré en mode simulation. Pour l'intégrer avec un backend :
+Le formulaire est **entièrement fonctionnel** avec PHP pour l'envoi d'emails.
 
-1. Décommentez le code fetch dans `script.js` (ligne 179-203)
-2. Configurez votre endpoint API
-3. Ajoutez la gestion côté serveur
+#### Configuration requise (Hostinger)
 
-Exemple d'intégration :
-```javascript
-fetch('/api/contact', {
-    method: 'POST',
-    body: formData
-})
-.then(response => response.json())
-.then(data => {
-    // Gérer la réponse
-})
+1. **Configurez vos emails dans `config.php`** :
+```php
+// Modifiez ces valeurs avec vos vraies informations
+define('CONTACT_EMAIL', 'votre-email@domaine.com');  // Email qui reçoit les demandes
+define('SMTP_FROM_EMAIL', 'noreply@votredomaine.com'); // Email d'envoi (doit être du même domaine)
+define('CONTACT_PHONE', '+33 1 23 45 67 89');
 ```
+
+2. **Créez l'adresse email d'envoi** :
+   - Connectez-vous au panneau Hostinger
+   - Allez dans "Emails"
+   - Créez l'adresse `noreply@votredomaine.com` (ou celle que vous avez configurée)
+
+3. **Créez le dossier logs** :
+```bash
+mkdir logs
+chmod 755 logs
+```
+
+4. **Testez le formulaire** :
+   - Remplissez et soumettez le formulaire
+   - Vérifiez votre boîte email (et le dossier spam)
+   - Vérifiez les logs : `logs/contact-submissions.log`
+
+#### Fonctionnalités de sécurité
+
+- ✅ **Rate Limiting** : Max 3 soumissions par heure par IP
+- ✅ **Honeypot** : Champ caché pour bloquer les bots
+- ✅ **Validation côté client et serveur**
+- ✅ **Protection CSRF** via vérification d'origine
+- ✅ **Sanitisation des données**
+- ✅ **Protection XSS et injections SQL**
+- ✅ **Email de confirmation automatique au client**
+
+#### Personnalisation des emails
+
+Les emails HTML sont dans `contact.php` :
+- Lignes 135-200 : Email pour vous (avec toutes les infos)
+- Lignes 263-310 : Email de confirmation pour le client
 
 ## Responsive Design
 
@@ -148,6 +199,62 @@ La page est entièrement responsive avec des breakpoints :
 - Safari (dernières versions)
 - Edge (dernières versions)
 
+## Dépannage
+
+### Le formulaire ne s'envoie pas
+
+1. **Vérifiez la configuration PHP** :
+   - `config.php` : Les emails sont-ils corrects ?
+   - `SMTP_FROM_EMAIL` doit être une adresse de votre domaine
+   - L'adresse email d'envoi existe-t-elle dans Hostinger ?
+
+2. **Vérifiez les erreurs** :
+   - Activez `DEBUG_MODE` dans `config.php` temporairement
+   - Consultez les logs : `logs/contact-submissions.log`
+   - Vérifiez les logs d'erreur PHP dans le panneau Hostinger
+
+3. **Vérifiez les permissions** :
+   ```bash
+   chmod 644 contact.php
+   chmod 640 config.php
+   chmod 755 logs/
+   ```
+
+4. **Problèmes .htaccess** :
+   - Si vous avez une erreur 500, commentez progressivement les sections du .htaccess
+   - Certains hébergeurs ont des restrictions sur certaines directives
+
+5. **Emails non reçus** :
+   - Vérifiez le dossier spam
+   - Configurez SPF et DKIM dans votre DNS (panneau Hostinger)
+   - Testez avec `mail()` PHP simple d'abord
+
+### Erreur "Configuration non complète"
+
+Modifiez les valeurs par défaut dans `config.php` :
+- `votre-email@domaine.com` → votre vraie adresse
+- `noreply@votredomaine.com` → adresse de votre domaine
+
+### Rate limiting trop restrictif
+
+Modifiez dans `config.php` :
+```php
+define('MAX_SUBMISSIONS_PER_HOUR', 5); // Augmentez la limite
+```
+
+## Sécurité en Production
+
+**Checklist avant mise en ligne** :
+
+- [ ] `DEBUG_MODE = false` dans `config.php`
+- [ ] Emails configurés avec vos vraies adresses
+- [ ] `.htaccess` activé et testé
+- [ ] Certificat SSL installé (décommentez redirection HTTPS dans .htaccess)
+- [ ] Permissions fichiers correctes (644 pour PHP, 640 pour config.php)
+- [ ] Dossier `logs/` créé avec permissions 755
+- [ ] SPF et DKIM configurés dans le DNS
+- [ ] Testez le formulaire plusieurs fois
+
 ## Améliorations Futures
 
 - [ ] Ajouter un carrousel de témoignages clients
@@ -158,6 +265,8 @@ La page est entièrement responsive avec des breakpoints :
 - [ ] Version multilingue
 - [ ] Mode sombre
 - [ ] PWA (Progressive Web App)
+- [ ] Intégration Google Analytics
+- [ ] Captcha pour le formulaire
 
 ## Support
 

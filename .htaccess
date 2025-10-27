@@ -1,0 +1,254 @@
+# ================================================
+# .htaccess - Surveillance Mobile
+# Configuration Apache pour sécurité et performance
+# ================================================
+
+# ------------------------------
+# Protection des fichiers sensibles
+# ------------------------------
+
+# Bloquer l'accès direct au fichier de configuration
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Protéger les fichiers de log
+<FilesMatch "\.(log|txt)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Protéger les fichiers système et de sauvegarde
+<FilesMatch "^(\.htaccess|\.htpasswd|\.git|\.env|\.DS_Store|Thumbs\.db|\.zip|\.sql|\.bak)">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ------------------------------
+# Sécurité PHP
+# ------------------------------
+
+# Désactiver l'affichage des erreurs PHP en production (commenter en développement)
+php_flag display_errors Off
+php_value error_reporting 0
+
+# Désactiver la fonction phpinfo pour éviter la divulgation d'informations
+# php_value disable_functions phpinfo,system,exec,shell_exec,passthru
+
+# Limiter la taille des uploads
+php_value upload_max_filesize 5M
+php_value post_max_size 10M
+
+# Limiter le temps d'exécution
+php_value max_execution_time 30
+php_value max_input_time 30
+
+# ------------------------------
+# Protection contre les injections
+# ------------------------------
+
+# Bloquer les requêtes avec des caractères suspects
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloquer les injections SQL communes
+    RewriteCond %{QUERY_STRING} (union.*select|insert.*into|delete.*from|drop.*table) [NC]
+    RewriteRule .* - [F,L]
+
+    # Bloquer les tentatives de traversée de répertoires
+    RewriteCond %{QUERY_STRING} (\.\./|\.\.) [NC]
+    RewriteRule .* - [F,L]
+
+    # Bloquer les tentatives d'inclusion de fichiers distants
+    RewriteCond %{QUERY_STRING} (http|https|ftp|php):// [NC]
+    RewriteRule .* - [F,L]
+
+    # Bloquer les scripts malveillants
+    RewriteCond %{QUERY_STRING} (<script|<iframe|<object|base64_encode|eval\(|javascript:) [NC]
+    RewriteRule .* - [F,L]
+</IfModule>
+
+# ------------------------------
+# En-têtes de sécurité
+# ------------------------------
+
+<IfModule mod_headers.c>
+    # Protection XSS
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Empêcher le MIME sniffing
+    Header set X-Content-Type-Options "nosniff"
+
+    # Protection contre le clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+
+    # Politique de sécurité du contenu (CSP) - À adapter selon vos besoins
+    # Header set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+
+    # Référence HTTP - Ne pas envoyer d'informations de référence vers d'autres sites
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Forcer HTTPS (décommenter une fois le SSL configuré)
+    # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+    # Supprimer les informations du serveur
+    Header unset Server
+    Header unset X-Powered-By
+</IfModule>
+
+# Supprimer la signature du serveur
+ServerSignature Off
+
+# ------------------------------
+# Compression GZIP
+# ------------------------------
+
+<IfModule mod_deflate.c>
+    # Compression pour HTML, CSS, JS, XML, JSON
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ------------------------------
+# Cache et Performance
+# ------------------------------
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Images
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+
+    # CSS et JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+
+    # Fonts
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+
+    # HTML et PHP - courte durée
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/x-php "access plus 0 seconds"
+
+    # Par défaut
+    ExpiresDefault "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Cache pour les ressources statiques
+    <FilesMatch "\.(jpg|jpeg|png|gif|svg|webp|css|js|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "max-age=31536000, public"
+    </FilesMatch>
+
+    # Pas de cache pour HTML et PHP
+    <FilesMatch "\.(html|php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+    </FilesMatch>
+</IfModule>
+
+# ------------------------------
+# Redirection HTTPS (décommenter après installation SSL)
+# ------------------------------
+
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# ------------------------------
+# Page d'index par défaut
+# ------------------------------
+
+DirectoryIndex index.html index.php
+
+# ------------------------------
+# Désactiver le listing des répertoires
+# ------------------------------
+
+Options -Indexes
+
+# ------------------------------
+# Protection contre le hotlinking des images
+# ------------------------------
+
+# <IfModule mod_rewrite.c>
+#     RewriteEngine on
+#     RewriteCond %{HTTP_REFERER} !^$
+#     RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?votredomaine.com [NC]
+#     RewriteRule \.(jpg|jpeg|png|gif|svg)$ - [NC,F,L]
+# </IfModule>
+
+# ------------------------------
+# Gestion des erreurs personnalisées
+# ------------------------------
+
+# ErrorDocument 404 /404.html
+# ErrorDocument 403 /403.html
+# ErrorDocument 500 /500.html
+
+# ------------------------------
+# Protection contre les attaques DOS
+# ------------------------------
+
+<IfModule mod_evasive.c>
+    # Limite de requêtes
+    DOSHashTableSize 3097
+    DOSPageCount 10
+    DOSSiteCount 100
+    DOSPageInterval 1
+    DOSSiteInterval 1
+    DOSBlockingPeriod 10
+</IfModule>
+
+# ------------------------------
+# UTF-8 par défaut
+# ------------------------------
+
+AddDefaultCharset UTF-8
+
+# ------------------------------
+# Types MIME
+# ------------------------------
+
+<IfModule mod_mime.c>
+    AddType application/javascript js
+    AddType text/css css
+    AddType image/svg+xml svg svgz
+    AddEncoding gzip svgz
+</IfModule>
+
+# ================================================
+# FIN DE LA CONFIGURATION
+# ================================================
+
+# NOTES IMPORTANTES:
+# 1. Testez ce fichier après l'upload - certains hébergeurs peuvent ne pas supporter toutes les directives
+# 2. Décommentez la redirection HTTPS après installation du certificat SSL
+# 3. Adaptez les règles selon vos besoins spécifiques
+# 4. Si vous rencontrez des erreurs 500, commentez progressivement les sections pour identifier le problème
+# 5. Sauvegardez toujours ce fichier avant modification

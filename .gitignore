@@ -1,0 +1,170 @@
+# ================================================
+# .gitignore - Surveillance Mobile
+# Fichiers et dossiers à ne pas inclure dans Git
+# ================================================
+
+# ------------------------------
+# Fichiers de configuration sensibles
+# ------------------------------
+
+# Ne jamais commiter config.php en production
+# Décommentez la ligne ci-dessous si vous avez des données sensibles
+# config.php
+
+# Fichiers de configuration locaux
+*.local.php
+.env
+.env.local
+.env.production
+
+# ------------------------------
+# Logs et fichiers temporaires
+# ------------------------------
+
+# Logs
+logs/
+*.log
+
+# Cache
+cache/
+tmp/
+temp/
+
+# Sessions PHP
+sessions/
+
+# ------------------------------
+# Système d'exploitation
+# ------------------------------
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ------------------------------
+# IDE et éditeurs
+# ------------------------------
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PhpStorm / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# NetBeans
+nbproject/
+nbbuild/
+dist/
+nbdist/
+
+# ------------------------------
+# Fichiers de sauvegarde
+# ------------------------------
+
+*.bak
+*.backup
+*.old
+*.orig
+*.swp
+*.swo
+*~
+*.tmp
+
+# ------------------------------
+# Fichiers d'upload utilisateur
+# ------------------------------
+
+uploads/
+files/
+media/
+
+# ------------------------------
+# Base de données
+# ------------------------------
+
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# ------------------------------
+# Dépendances (si vous utilisez Composer)
+# ------------------------------
+
+vendor/
+composer.phar
+composer.lock
+
+# ------------------------------
+# Node modules (si ajout de build tools)
+# ------------------------------
+
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# ------------------------------
+# Fichiers de build
+# ------------------------------
+
+dist/
+build/
+*.min.js
+*.min.css
+
+# ------------------------------
+# Archives
+# ------------------------------
+
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# ------------------------------
+# Documents sensibles
+# ------------------------------
+
+passwords.txt
+credentials.txt
+secrets.txt
+
+# ------------------------------
+# Notes de développement
+# ------------------------------
+
+TODO.md
+NOTES.md
+dev-notes/

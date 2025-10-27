@@ -381,31 +381,34 @@
 
                 <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
                     <form id="contact-form" class="space-y-6">
+                        <!-- Honeypot field (hidden from users, catches bots) -->
+                        <input type="text" name="website" style="display:none !important;" tabindex="-1" autocomplete="off">
+
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Nom Complet *</label>
-                                <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="Jean Dupont">
+                                <label for="nom" class="block text-gray-700 font-semibold mb-2">Nom Complet *</label>
+                                <input type="text" id="nom" name="nom" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="Jean Dupont">
                             </div>
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Entreprise</label>
-                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="Votre entreprise">
+                                <label for="entreprise" class="block text-gray-700 font-semibold mb-2">Entreprise</label>
+                                <input type="text" id="entreprise" name="entreprise" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="Votre entreprise">
                             </div>
                         </div>
 
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Email *</label>
-                                <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="email@exemple.com">
+                                <label for="email" class="block text-gray-700 font-semibold mb-2">Email *</label>
+                                <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="email@exemple.com">
                             </div>
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Téléphone *</label>
-                                <input type="tel" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="+33 6 12 34 56 78">
+                                <label for="telephone" class="block text-gray-700 font-semibold mb-2">Téléphone *</label>
+                                <input type="tel" id="telephone" name="telephone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="+33 6 12 34 56 78">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-gray-700 font-semibold mb-2">Type de Projet *</label>
-                            <select required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                            <label for="type_projet" class="block text-gray-700 font-semibold mb-2">Type de Projet *</label>
+                            <select id="type_projet" name="type_projet" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
                                 <option value="">Sélectionnez un type</option>
                                 <option value="chantier">Surveillance de Chantier</option>
                                 <option value="evenement">Surveillance d'Événement</option>
@@ -417,12 +420,12 @@
 
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Date de Début</label>
-                                <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                                <label for="date_debut" class="block text-gray-700 font-semibold mb-2">Date de Début</label>
+                                <input type="date" id="date_debut" name="date_debut" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
                             </div>
                             <div>
-                                <label class="block text-gray-700 font-semibold mb-2">Durée Estimée</label>
-                                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                                <label for="duree" class="block text-gray-700 font-semibold mb-2">Durée Estimée</label>
+                                <select id="duree" name="duree" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
                                     <option value="">Sélectionnez une durée</option>
                                     <option value="1-7">1-7 jours</option>
                                     <option value="1-4">1-4 semaines</option>
@@ -434,12 +437,12 @@
                         </div>
 
                         <div>
-                            <label class="block text-gray-700 font-semibold mb-2">Message / Détails du Projet *</label>
-                            <textarea required rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="Décrivez votre projet, vos besoins spécifiques, la surface à surveiller, etc."></textarea>
+                            <label for="message" class="block text-gray-700 font-semibold mb-2">Message / Détails du Projet *</label>
+                            <textarea id="message" name="message" required rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition" placeholder="Décrivez votre projet, vos besoins spécifiques, la surface à surveiller, etc."></textarea>
                         </div>
 
                         <div class="flex items-center">
-                            <input type="checkbox" required id="consent" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                            <input type="checkbox" required id="consent" name="consent" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
                             <label for="consent" class="ml-2 text-sm text-gray-600">J'accepte d'être contacté concernant ma demande *</label>
                         </div>
 
